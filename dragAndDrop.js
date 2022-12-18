@@ -1,3 +1,5 @@
+import { supportedFilesTypes } from './constants.js';
+
 const dropTarget = document.getElementById('droptarget');
 const filesOutput = document.getElementById('files');
 const table = document.createElement('table');
@@ -40,10 +42,19 @@ function handleDrop(e) {
     let dt = e.dataTransfer;
     let files = dt.files;
 
+    for (let i = 0; i < files.length; i++) {
+        if (!supportedFilesTypes.includes(files[i].type)) {
+            alert(`File type: ${files[i].type} not supported`);
+            return;
+        }
+    }
+
+    // check if file is support
+
     filesArr.push(...files);
-    console.log(filesArr);
 
     // display files when dropped
+    hidePreview();
     displayFileInfo();
 }
 
@@ -54,8 +65,13 @@ function uploadFile(file) {
 function deleteFile(index) {
     filesArr.splice(index, 1);
     console.log(filesArr);
+
+    if (filesArr.length === 0) {
+        document.getElementById('preview').innerHTML = '';
+    }
 }
 function displayFileInfo() {
+    console.log('in displayFileInfo');
     // clear output
     filesOutput.innerHTML = '';
     table.innerHTML = `
@@ -90,24 +106,28 @@ function displayFileInfo() {
                         Last Modified
                     </th>
                     <th>Action</th>
+                    <th>Preview</th>
                 </tr>
             </thead>
 
         `;
-    console.log(filesArr);
 
     filesArr.forEach((file, index) => {
         table.innerHTML += `
                 <tr id='${index}' class='${file?.isDuplicate && 'dup'}'>
                     <td data-sortid='name'>${file.name}</td>
                     <td data-sortid='type'>${file.type}</td>
-                    <td data-sortid='size'>${(file.size / 1000).toFixed(
+                    <td data-sortid='size'>${(file.size / 1000000).toFixed(
                         2
-                    )}(kb)</td>
+                    )}(MB)</td>
                     <td data-sortid='lastModifiedDate'>${file.lastModifiedDate.toLocaleDateString()}</td>
                     <td>
                         <span data-action="delete" data-target="${index}" class="button">❌</span>
                     </td>
+                    <td>
+                        <span data-action="preview" data-target="${index}" class="button">👁️</span>
+                    </td>
+
                 </tr>
             `;
     });
@@ -115,8 +135,7 @@ function displayFileInfo() {
     filesOutput.appendChild(table);
 
     const deleteBtns = document.querySelectorAll('[data-action="delete"]');
-    console.log(deleteBtns);
-    deleteBtns.forEach((btn) => {
+    deleteBtns?.forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const index = e.target.dataset.target;
             deleteFile(index);
@@ -124,4 +143,109 @@ function displayFileInfo() {
             displayFileInfo();
         });
     });
+
+    const previewBtns = document.querySelectorAll('[data-action="preview"]');
+    previewBtns?.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const index = e.target.dataset.target;
+            previewFile(filesArr[index]);
+        });
+    });
 }
+
+function previewFile(file) {
+    console.log('in previewFile');
+    let reader = new FileReader();
+    document.getElementById('preview').innerHTML = '';
+
+    if (file.type.includes('image')) {
+        console.log(file.type);
+        reader.readAsDataURL(file);
+        reader.onloadend = function () {
+            let img = document.createElement('img');
+            img.classList.add('preview');
+            img.src = reader.result;
+
+            document.getElementById('preview').appendChild(img);
+        };
+        return;
+    }
+
+    if (file.type.includes('video')) {
+        reader.readAsDataURL(file);
+        reader.onloadend = function () {
+            let video = document.createElement('video');
+            video.classList.add('preview');
+            video.src = reader.result;
+            video.controls = true;
+
+            document.getElementById('preview').appendChild(video);
+        };
+        return;
+    }
+
+    if (file.type.includes('audio')) {
+        reader.readAsDataURL(file);
+        reader.onloadend = function () {
+            let audio = document.createElement('audio');
+            audio.classList.add('preview');
+            audio.src = reader.result;
+            audio.controls = true;
+
+            document.getElementById('preview').appendChild(audio);
+        };
+        return;
+    }
+    if (file.type.includes('pdf')) {
+        reader.readAsDataURL(file);
+        reader.onloadend = function () {
+            let pdf = document.createElement('embed');
+            pdf.classList.add('preview');
+            pdf.src = reader.result;
+            pdf.type = 'application/pdf';
+
+            document.getElementById('preview').appendChild(pdf);
+        };
+        return;
+    }
+    reader.readAsText(file);
+    reader.onloadend = function () {
+        // display file content
+
+        let pre = document.createElement('pre');
+        pre.classList.add('preview');
+        pre.innerText = reader.result;
+        document.getElementById('preview').appendChild(pre);
+
+        console.log(reader.result);
+        console.log(file.type);
+    };
+}
+
+function hidePreview() {
+    document.getElementById('preview').innerHTML = '';
+}
+
+// onclick outide of preview, hide preview
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#preview')) {
+        hidePreview();
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'Escape') {
+        hidePreview();
+    }
+});
+
+const fileInput = document.getElementById('fileInput');
+fileInput.addEventListener('change', (e) => {
+    console.log('fileInput change');
+    const files = e.target.files;
+    console.log(files);
+    filesArr.push(...files);
+    hidePreview();
+    displayFileInfo();
+});
