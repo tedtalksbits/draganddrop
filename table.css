@@ -1,0 +1,79 @@
+:root {
+    --theme-dark-900: #1c1c1c;
+    --theme-dark-800: #282828;
+    --theme-dark-700: #333333;
+    --theme-dark-600: #3d3d3d;
+
+    --theme-light-900: #ffffff;
+    --theme-light-800: #ffffff;
+    --theme-light-700: #f1f1f2;
+    --theme-light-600: #ffffff;
+
+    --theme-dark-color: #ffffff;
+    --theme-light-color: #212529;
+}
+
+table {
+    width: 95%;
+    max-width: 120ch;
+    margin: auto;
+    border-collapse: collapse;
+    text-align: center;
+    border-radius: 6px;
+    overflow: hidden;
+    border-spacing: 0;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    color: var(--theme-light-color);
+    background-color: var(--theme-light-800);
+}
+
+table,
+th,
+td {
+    border-bottom: 1px solid var(--theme-light-700);
+}
+
+th,
+td {
+    padding: 15px;
+    text-align: left;
+}
+
+tbody tr {
+    transition: border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
+}
+
+/* tbody tr:hover {
+    background-color: var(--theme-light-700);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: #80bdff;
+} */
+
+/* tr:nth-child(even) {
+    background-color: var(--theme-light-700);
+}
+
+tr:nth-child(odd) {
+    background-color: var(--theme-light-800);
+} */
+
+th {
+    background-color: var(--theme-light-900);
+    color: var(--theme-light-color);
+    position: relative;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+th[data-direction='asc']::after {
+    content: ' ▲';
+    position: absolute;
+    color: var(--theme-light-color);
+}
+
+th[data-direction='desc']::after {
+    content: ' ▼';
+    position: absolute;
+    color: var(--theme-light-color);
+}
