@@ -117,9 +117,9 @@ function displayFileInfo() {
                 <tr id='${index}' class='${file?.isDuplicate && 'dup'}'>
                     <td data-sortid='name'>${file.name}</td>
                     <td data-sortid='type'>${file.type}</td>
-                    <td data-sortid='size'>${(file.size / 1000000).toFixed(
+                    <td data-sortid='size'>${(file.size / 1000).toFixed(
                         2
-                    )}(MB)</td>
+                    )}(KB)</td>
                     <td data-sortid='lastModifiedDate'>${file.lastModifiedDate.toLocaleDateString()}</td>
                     <td>
                         <span data-action="delete" data-target="${index}" class="button">❌</span>
@@ -127,7 +127,6 @@ function displayFileInfo() {
                     <td>
                         <span data-action="preview" data-target="${index}" class="button">👁️</span>
                     </td>
-
                 </tr>
             `;
     });
@@ -157,6 +156,13 @@ function previewFile(file) {
     console.log('in previewFile');
     let reader = new FileReader();
     document.getElementById('preview').innerHTML = '';
+
+    // check if file is empty
+
+    if (file.size === 0) {
+        alert('File is empty');
+        return;
+    }
 
     if (file.type.includes('image')) {
         console.log(file.type);
@@ -211,7 +217,6 @@ function previewFile(file) {
     reader.readAsText(file);
     reader.onloadend = function () {
         // display file content
-
         let pre = document.createElement('pre');
         pre.classList.add('preview');
         pre.innerText = reader.result;
